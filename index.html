@@ -60,6 +60,22 @@
 </head>
 <body id="uygulamaGovdesi">
 
+    <script>
+        // --- ŞİFRE KONTROLÜ (Her oturumda yeniden sorar) ---
+        const dogruSifre = "gürov"; // Şifreniz
+        const girilenSifre = sessionStorage.getItem("uygulama_sifresi");
+        
+        if (girilenSifre !== dogruSifre) {
+            let cevap = prompt("Uygulamaya girmek için şifreyi yazın:");
+            if (cevap === dogruSifre) {
+                sessionStorage.setItem("uygulama_sifresi", dogruSifre);
+            } else {
+                document.body.innerHTML = "<h2 style='color:white; margin-top:30vh;'>⛔ Erişim Engellendi.</h2><p style='color:white; opacity:0.7;'>Sayfayı yenileyip tekrar deneyin.</p>";
+                throw new Error("Şifre yanlış, uygulama durduruldu."); 
+            }
+        }
+    </script>
+
     <!-- KARŞILAMA EKRANI -->
     <div id="karsilamaEkrani">
         <div id="kayitAdim1">
@@ -111,6 +127,7 @@
     </div>
 
     <script>
+        // --- VERİ YAPILARI ---
         let adisyon = [];
         let sayacInterval;
         let geciciCinsiyet = 'erkek';
