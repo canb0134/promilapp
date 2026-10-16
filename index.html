@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Promil Sayacı</title>
+    
+    <!-- PWA Bağlantıları ve iPhone Özel Ayarları -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Promil">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
     <style>
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         body { margin: 0; padding: 0; background-color: #2c3e50; color: white; text-align: center; overflow-x: hidden; transition: background-color 0.5s; }
@@ -34,7 +43,7 @@
         
         .menu-img { 
             width: 100%; height: 120px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3); background-color: white; /* Şeffaf görseller için beyaz arkaplan */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3); background-color: white;
         }
         .menu-btn span { font-size: 1.1em; font-weight: bold; }
 
@@ -107,7 +116,6 @@
         let geciciCinsiyet = 'erkek';
         let geciciKilo = 80;
         
-        // Kullanıcının gönderdiği yerel dosyalarla eşleştirilen içecek veritabanı
         const icecekler = {
             bira: { 
                 isim: "Bira", 
@@ -143,7 +151,6 @@
             }
         };
 
-        // İLK GİRİŞ VE KAYIT AKIŞI
         window.onload = () => {
             document.getElementById("karsilamaEkrani").style.display = "flex";
             document.getElementById("anaUygulamaEkrani").style.display = "none";
@@ -186,7 +193,6 @@
             verileriYukle();
         }
 
-        // MENÜ AKIŞI
         const menuModali = document.getElementById("ickiMenusu");
         const kategoriDiv = document.getElementById("kategoriListesi");
         const boyutDiv = document.getElementById("boyutListesi");
@@ -245,7 +251,6 @@
             ekraniGuncelle();
         }
 
-        // HESAPLAMA VE KAYIT
         function verileriKaydet() { localStorage.setItem("alkol_adisyon", JSON.stringify(adisyon)); }
 
         function verileriYukle() {
@@ -336,6 +341,17 @@
                 liste.innerHTML += `<li><span>${icki.isim}</span> <span style="opacity: 0.6;">${formatliSaat}</span></li>`;
             });
             document.getElementById("toplamOzet").innerText = `Toplam: ${adisyon.length} İçecek`;
+        }
+    </script>
+    
+    <!-- Service Worker Kaydı -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker aktif!', reg))
+                    .catch(err => console.log('Service Worker hatası:', err));
+            });
         }
     </script>
 </body>
