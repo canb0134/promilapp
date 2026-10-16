@@ -61,22 +61,16 @@
 <body id="uygulamaGovdesi">
 
    <script>
-        // --- ŞİFRE KONTROLÜ (Aşılmaz Versiyon) ---
-        const dogruSifre = "gürov"; // Şifreniz
-        const girilenSifre = sessionStorage.getItem("uygulama_sifresi");
+        // --- ŞİFRE KONTROLÜ (Her yenilemede KESİN sorar) ---
+        const dogruSifre = "gürov"; 
+        let cevap = prompt("Uygulamaya girmek için şifreyi yazın:");
         
-        if (girilenSifre !== dogruSifre) {
-            let cevap = prompt("Uygulamaya girmek için şifreyi yazın:");
-            if (cevap === dogruSifre) {
-                sessionStorage.setItem("uygulama_sifresi", dogruSifre);
-            } else {
-                // Ekranı tamamen sil, uyarıyı bas ve sayfa yüklemesini KES
-                document.documentElement.innerHTML = "<body style='background-color:#2c3e50; color:white; text-align:center; padding-top:30vh; font-family:-apple-system, sans-serif;'><h2>⛔ Erişim Engellendi.</h2><p style='opacity:0.7;'>Sayfayı yenileyip tekrar deneyin.</p></body>";
-                window.stop(); 
-            }
+        if (cevap !== dogruSifre) {
+            // Şifre yanlışsa veya iptale basılırsa ekranı tamamen sil ve kitle
+            document.documentElement.innerHTML = "<body style='background-color:#2c3e50; color:white; text-align:center; padding-top:30vh; font-family:-apple-system, sans-serif;'><h2>⛔ Erişim Engellendi.</h2><p style='opacity:0.7;'>Sayfayı yenileyip tekrar deneyin.</p></body>";
+            window.stop(); 
         }
     </script>
-
     <!-- KARŞILAMA EKRANI -->
     <div id="karsilamaEkrani">
         <div id="kayitAdim1">
