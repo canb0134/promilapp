@@ -1,0 +1,33 @@
+const CACHE_NAME = 'promil-sayaci-v1';
+
+// İnternetsiz çalışması için telefonun hafızasına indirilecek dosyalar
+const KAYDEDILECEKLER = [
+  './',
+  './index.html',
+  './manifest.json',
+  './Bira.jpg',
+  './şarap.jpg',
+  './rakı.webp',
+  './vodka tekila viski.webp'
+];
+
+// Kurulum Aşaması: Dosyaları indir
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        return cache.addAll(KAYDEDILECEKLER);
+      })
+  );
+});
+
+// Çalışma Aşaması: İnternet yoksa hafızadan (cache) getir
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        // Hafızada varsa onu ver, yoksa internetten çek
+        return response || fetch(event.request);
+      })
+  );
+});

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Promil Sayacı</title>
+    <style>
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { margin: 0; padding: 0; background-color: #2c3e50; color: white; text-align: center; overflow-x: hidden; transition: background-color 0.5s; }
+        
+        /* Ekranlar */
+        #karsilamaEkrani, #anaUygulamaEkrani { display: none; padding: 20px; min-height: 100vh; flex-direction: column; justify-content: center; align-items: center; }
+        
+        /* Butonlar */
+        .dev-buton { background: white; color: black; border: none; padding: 20px; font-size: 1.5em; border-radius: 15px; margin: 10px; width: 90%; max-width: 400px; font-weight: bold; cursor: pointer; }
+        .dev-ekle-butonu { background: #f1c40f; color: black; border: none; padding: 25px; font-size: 1.8em; border-radius: 20px; font-weight: bold; width: 90%; max-width: 400px; margin-top: 20px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .geri-al-btn { background: transparent; border: none; color: white; text-decoration: underline; margin-top: 15px; font-size: 1em; cursor: pointer; padding: 10px; }
+        
+        /* Slider (Kilo Çubuğu) */
+        input[type=range] { -webkit-appearance: none; width: 90%; max-width: 350px; background: transparent; margin: 30px 0; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 40px; width: 40px; border-radius: 50%; background: #f1c40f; cursor: pointer; margin-top: -15px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 10px; cursor: pointer; background: #34495e; border-radius: 5px; }
+        
+        /* Fotoğraflı Modal Menü Tasarımı */
+        #ickiMenusu { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; overflow-y: auto; padding-top: 5vh; padding-bottom: 30px; }
+        .liste-izgarasi { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 0 15px; }
+        
+        .menu-btn { 
+            background: #34495e; color: white; border: none; padding: 10px; border-radius: 15px; 
+            width: 45%; max-width: 160px; cursor: pointer; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; transition: transform 0.1s;
+        }
+        .menu-btn:active { transform: scale(0.95); }
+        
+        .menu-img { 
+            width: 100%; height: 120px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3); background-color: white; /* Şeffaf görseller için beyaz arkaplan */
+        }
+        .menu-btn span { font-size: 1.1em; font-weight: bold; }
+
+        /* Sayaçlar */
+        h1 { font-size: 2.5em; margin-bottom: 5px; }
+        .sayac-kutu { margin-top: 20px; padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.2); }
+        .sayac-kutu b { display: block; margin-top: 5px; }
+        
+        /* Adisyon */
+        #geceOzeti { margin-top: 40px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 15px; width: 90%; max-width: 400px; text-align: left; margin-left: auto; margin-right: auto; }
+        #adisyonListesi { list-style: none; padding: 0; margin: 0; }
+        #adisyonListesi li { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 10px 0; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body id="uygulamaGovdesi">
+
+    <!-- KARŞILAMA EKRANI -->
+    <div id="karsilamaEkrani">
+        <div id="kayitAdim1">
+            <h2>Metabolizma Tipini Seç:</h2>
+            <button class="dev-buton" onclick="cinsiyetSec('kadin')">KADIN</button>
+            <button class="dev-buton" onclick="cinsiyetSec('erkek')">ERKEK</button>
+        </div>
+        <div id="kayitAdim2" style="display: none;">
+            <h2>Kilonu Belirle:</h2>
+            <h1 id="kiloDegeri" style="font-size: 4em; color: #f1c40f; margin: 10px 0;">80 kg</h1>
+            <input type="range" id="kiloSlider" min="40" max="150" value="80" oninput="kiloYazdir(this.value)">
+            <button class="dev-ekle-butonu" onclick="kiloOnayla()">İLERİ</button>
+        </div>
+        <div id="kayitAdim3" style="display: none;">
+            <h2>Son Bir Adım 📜</h2>
+            <p style="opacity: 0.9; font-size: 1em; width: 90%; max-width: 400px; margin: 15px auto; text-align: justify; line-height: 1.5;">
+                <strong>Aydınlatma ve Yasal Uyarı:</strong> Girdiğin sağlık verileri sadece bu cihazda yerel olarak saklanır. Bu uygulamanın sunduğu veriler tamamen tahminseldir, alkolün etkisi kişiden kişiye değişir.
+            </p>
+            <button class="dev-ekle-butonu" style="background: #27ae60; color: white;" onclick="kvkkOnaylaVeBasla()">OKUDUM, ONAYLIYORUM</button>
+        </div>
+    </div>
+
+    <!-- ANA UYGULAMA EKRANI -->
+    <div id="anaUygulamaEkrani">
+        <h1 id="anaMesaj">İÇMEYE HAZIRSIN</h1>
+        
+        <div id="arabaSayaci" class="sayac-kutu" style="display: none;"></div>
+        <div id="ayilmaSayaci" class="sayac-kutu" style="display: none;"></div>
+        
+        <button onclick="kategoriMenusuAc()" class="dev-ekle-butonu">+ İÇKİ EKLE</button>
+        <button id="geriAlButonu" class="geri-al-btn" onclick="sonIckiyiSil()" style="display: none;">↺ Son Ekleneni Sil</button>
+
+        <div id="geceOzeti" style="display: none;">
+            <h3 style="margin: 0 0 10px 0; text-align: center;">🍻 Adisyon</h3>
+            <ul id="adisyonListesi"></ul>
+            <div id="toplamOzet" style="margin-top: 15px; font-weight: bold; text-align: center; color: #f1c40f;"></div>
+            <button onclick="geceyiSifirla()" style="width:100%; margin-top:20px; padding:10px; background:red; color:white; border:none; border-radius:5px; cursor: pointer;">Gecemi Sıfırla</button>
+        </div>
+    </div>
+
+    <!-- SEÇİM MENÜSÜ (Modal) -->
+    <div id="ickiMenusu">
+        <h2 id="menuBasligi" style="margin-bottom: 25px;">Ne İçiyorsun?</h2>
+        
+        <div id="kategoriListesi" class="liste-izgarasi"></div>
+        <div id="boyutListesi" class="liste-izgarasi" style="display: none;"></div>
+        
+        <button onclick="menuyuKapat()" style="margin-top: 40px; background: #e74c3c; color: white; border: none; padding: 15px 30px; border-radius: 10px; font-size: 1.2em; width: 80%; max-width: 300px;">İptal Et</button>
+    </div>
+
+    <script>
+        let adisyon = [];
+        let sayacInterval;
+        let geciciCinsiyet = 'erkek';
+        let geciciKilo = 80;
+        
+        // Kullanıcının gönderdiği yerel dosyalarla eşleştirilen içecek veritabanı
+        const icecekler = {
+            bira: { 
+                isim: "Bira", 
+                foto: "Bira.jpg", 
+                cesitler: [
+                    { isim: "33'lük Şişe", hacim: 330, alkol: 5, foto: "Bira.jpg" },
+                    { isim: "50'lik Fıçı", hacim: 500, alkol: 5, foto: "Bira.jpg" }
+                ]
+            },
+            sarap: { 
+                isim: "Şarap", 
+                foto: "şarap.jpg", 
+                cesitler: [
+                    { isim: "1 Kadeh", hacim: 150, alkol: 12, foto: "şarap.jpg" },
+                    { isim: "Yarım Şişe", hacim: 375, alkol: 12, foto: "şarap.jpg" }
+                ]
+            },
+            raki: { 
+                isim: "Rakı", 
+                foto: "rakı.webp", 
+                cesitler: [
+                    { isim: "Tek (4 cl)", hacim: 40, alkol: 45, foto: "rakı.webp" },
+                    { isim: "Duble (8 cl)", hacim: 80, alkol: 45, foto: "rakı.webp" }
+                ]
+            },
+            sek_icki: { 
+                isim: "Sek İçki", 
+                foto: "vodka tekila viski.webp", 
+                cesitler: [
+                    { isim: "Tek Shot", hacim: 44, alkol: 40, foto: "vodka tekila viski.webp" },
+                    { isim: "Duble", hacim: 88, alkol: 40, foto: "vodka tekila viski.webp" }
+                ]
+            }
+        };
+
+        // İLK GİRİŞ VE KAYIT AKIŞI
+        window.onload = () => {
+            document.getElementById("karsilamaEkrani").style.display = "flex";
+            document.getElementById("anaUygulamaEkrani").style.display = "none";
+            document.getElementById("kayitAdim1").style.display = "block";
+            document.getElementById("kayitAdim2").style.display = "none";
+            document.getElementById("kayitAdim3").style.display = "none";
+        };
+
+        function cinsiyetSec(cins) {
+            geciciCinsiyet = cins;
+            geciciKilo = (cins === 'kadin') ? 65 : 80;
+            document.getElementById("kiloSlider").value = geciciKilo;
+            document.getElementById("kiloDegeri").innerText = geciciKilo + " kg";
+            document.getElementById("kayitAdim1").style.display = "none";
+            document.getElementById("kayitAdim2").style.display = "block";
+        }
+
+        function kiloYazdir(deger) {
+            geciciKilo = deger;
+            document.getElementById("kiloDegeri").innerText = deger + " kg";
+        }
+
+        function kiloOnayla() {
+            document.getElementById("kayitAdim2").style.display = "none";
+            const kvkkOnayli = localStorage.getItem("kvkk_onaylandi");
+            if (kvkkOnayli === "true") { uygulamayaGec(); } 
+            else { document.getElementById("kayitAdim3").style.display = "block"; }
+        }
+
+        function kvkkOnaylaVeBasla() {
+            localStorage.setItem("kvkk_onaylandi", "true");
+            uygulamayaGec();
+        }
+
+        function uygulamayaGec() {
+            localStorage.setItem("kullanici_cinsiyet", geciciCinsiyet);
+            localStorage.setItem("kullanici_kilo", geciciKilo);
+            document.getElementById("karsilamaEkrani").style.display = "none";
+            document.getElementById("anaUygulamaEkrani").style.display = "flex";
+            verileriYukle();
+        }
+
+        // MENÜ AKIŞI
+        const menuModali = document.getElementById("ickiMenusu");
+        const kategoriDiv = document.getElementById("kategoriListesi");
+        const boyutDiv = document.getElementById("boyutListesi");
+
+        function kategoriMenusuAc() {
+            menuModali.style.display = "block";
+            kategoriDiv.style.display = "flex";
+            boyutDiv.style.display = "none";
+            document.getElementById("menuBasligi").innerText = "Ne İçiyorsun?";
+            kategoriDiv.innerHTML = "";
+            
+            for (let anahtar in icecekler) {
+                let btn = document.createElement("button");
+                btn.className = "menu-btn";
+                btn.innerHTML = `<img src="${icecekler[anahtar].foto}" class="menu-img"> <span>${icecekler[anahtar].isim}</span>`;
+                btn.onclick = () => boyutMenusuAc(anahtar);
+                kategoriDiv.appendChild(btn);
+            }
+        }
+
+        function boyutMenusuAc(anahtar) {
+            kategoriDiv.style.display = "none";
+            boyutDiv.style.display = "flex";
+            document.getElementById("menuBasligi").innerText = "Porsiyon Seç:";
+            boyutDiv.innerHTML = "";
+            
+            icecekler[anahtar].cesitler.forEach(cesit => {
+                let btn = document.createElement("button");
+                btn.className = "menu-btn";
+                btn.innerHTML = `<img src="${cesit.foto}" class="menu-img"> <span>${cesit.isim}</span>`;
+                btn.onclick = () => ickiOnayla(cesit.isim, cesit.hacim, cesit.alkol);
+                boyutDiv.appendChild(btn);
+            });
+        }
+
+        function ickiOnayla(isim, hacim, alkolOrani) {
+            const safAlkolGr = hacim * (alkolOrani / 100) * 0.789;
+            adisyon.push({ isim: isim, safAlkolGr: safAlkolGr, timestamp: Date.now() });
+            verileriKaydet();
+            menuyuKapat();
+            ekraniGuncelle();
+        }
+
+        function menuyuKapat() { menuModali.style.display = "none"; }
+
+        function sonIckiyiSil() {
+            if (adisyon.length === 0) return;
+            adisyon.pop();
+            verileriKaydet();
+            ekraniGuncelle();
+        }
+
+        function geceyiSifirla() {
+            localStorage.removeItem("alkol_adisyon");
+            adisyon = [];
+            ekraniGuncelle();
+        }
+
+        // HESAPLAMA VE KAYIT
+        function verileriKaydet() { localStorage.setItem("alkol_adisyon", JSON.stringify(adisyon)); }
+
+        function verileriYukle() {
+            const kayit = localStorage.getItem("alkol_adisyon");
+            if (kayit) { adisyon = JSON.parse(kayit); } else { adisyon = []; }
+            ekraniGuncelle();
+        }
+
+        function hedefSaatiBul(eklenecekSaat) {
+            const hedefZaman = new Date(Date.now() + (eklenecekSaat * 60 * 60 * 1000));
+            return `${hedefZaman.getHours().toString().padStart(2, '0')}:${hedefZaman.getMinutes().toString().padStart(2, '0')}`;
+        }
+
+        function ekraniGuncelle() {
+            if (sayacInterval) clearInterval(sayacInterval);
+            
+            const guncelle = () => {
+                const kilo = localStorage.getItem("kullanici_kilo") || 80;
+                const cinsiyet = localStorage.getItem("kullanici_cinsiyet") || "erkek";
+                const r = (cinsiyet === 'erkek') ? 0.68 : 0.55;
+                const saatlikErime = 0.15;
+                
+                const arkaplan = document.getElementById("uygulamaGovdesi");
+                const anaBaslik = document.getElementById("anaMesaj");
+                const arabaSayaci = document.getElementById("arabaSayaci");
+                const ayilmaSayaci = document.getElementById("ayilmaSayaci");
+                const geriAlButonu = document.getElementById("geriAlButonu");
+
+                adisyonListesiniGuncelle();
+
+                if (adisyon.length === 0) {
+                    arkaplan.style.backgroundColor = "#27ae60";
+                    anaBaslik.innerText = "İÇMEYE HAZIRSIN";
+                    arabaSayaci.style.display = "none";
+                    ayilmaSayaci.style.display = "none";
+                    geriAlButonu.style.display = "none";
+                    return;
+                }
+
+                geriAlButonu.style.display = "block";
+                geriAlButonu.innerText = `↺ ${adisyon[adisyon.length - 1].isim} İptal Et`;
+
+                const suAn = Date.now();
+                const ilkIcki = adisyon[0].timestamp;
+                let toplamPromil = 0;
+                
+                adisyon.forEach(icki => { toplamPromil += (icki.safAlkolGr / (kilo * r)); });
+                
+                const gecenSaat = (suAn - ilkIcki) / 3600000;
+                const eriyen = Math.max(0, gecenSaat * saatlikErime);
+                let anlikPromil = Math.max(0, (toplamPromil - eriyen));
+
+                if (anlikPromil <= 0.50) {
+                    arkaplan.style.backgroundColor = "#27ae60";
+                    anaBaslik.innerText = "DİREKSİYONA GEÇEBİLİRSİN";
+                    arabaSayaci.style.display = "none";
+                } else {
+                    arkaplan.style.backgroundColor = "#c0392b";
+                    anaBaslik.innerText = "DİREKSİYONA GEÇME!";
+                    const arabaSaat = (anlikPromil - 0.50) / saatlikErime;
+                    arabaSayaci.style.display = "block";
+                    arabaSayaci.innerHTML = `Yola çıkabileceğin saat:<br><b style="font-size:2em;">${hedefSaatiBul(arabaSaat)}</b>`;
+                }
+
+                if (anlikPromil > 0) {
+                    const ayilmaSaat = anlikPromil / saatlikErime;
+                    ayilmaSayaci.style.display = "block";
+                    ayilmaSayaci.innerHTML = `Tamamen ayılma:<br><b style="font-size:1.5em;opacity:0.8;">${hedefSaatiBul(ayilmaSaat)}</b>`;
+                }
+            };
+            
+            guncelle();
+            sayacInterval = setInterval(guncelle, 60000);
+        }
+
+        function adisyonListesiniGuncelle() {
+            const özetKutusu = document.getElementById("geceOzeti");
+            const liste = document.getElementById("adisyonListesi");
+            
+            if (adisyon.length === 0) { özetKutusu.style.display = "none"; return; }
+            
+            özetKutusu.style.display = "block";
+            liste.innerHTML = "";
+            
+            adisyon.forEach(icki => {
+                const saat = new Date(icki.timestamp);
+                const formatliSaat = `${saat.getHours().toString().padStart(2, '0')}:${saat.getMinutes().toString().padStart(2, '0')}`;
+                liste.innerHTML += `<li><span>${icki.isim}</span> <span style="opacity: 0.6;">${formatliSaat}</span></li>`;
+            });
+            document.getElementById("toplamOzet").innerText = `Toplam: ${adisyon.length} İçecek`;
+        }
+    </script>
+</body>
+</html>
