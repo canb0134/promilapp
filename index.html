@@ -84,6 +84,12 @@
             <input type="range" id="kiloSlider" min="40" max="150" value="80" oninput="kiloYazdir(this.value)">
             <button class="dev-ekle-butonu" onclick="kiloOnayla()">İLERİ</button>
         </div>
+        <div id="kayitAdimMide" style="display: none;">
+            <h2>Mide Durumun:</h2>
+            <button class="dev-buton" style="background:#e74c3c; color:white;" onclick="mideSec('ac')">AÇ KARNINA</button>
+            <button class="dev-buton" style="background:#27ae60; color:white;" onclick="mideSec('tok')">TOK KARNINA</button>
+            <p style="opacity: 0.7; font-size: 0.9em; margin-top:15px;">*Aç karnına içilen alkol kana daha hızlı karışır ve promil daha yüksek çıkar.</p>
+        </div>
         <div id="kayitAdim3" style="display: none;">
             <h2>Son Bir Adım 📜</h2>
             <p style="opacity: 0.9; font-size: 1em; width: 90%; max-width: 400px; margin: 15px auto; text-align: justify; line-height: 1.5;">
@@ -127,6 +133,7 @@
         let sayacInterval;
         let geciciCinsiyet = 'erkek';
         let geciciKilo = 80;
+        let geciciMide = 'tok';
         
         const icecekler = {
             bira: { 
@@ -163,11 +170,10 @@
             },
             kokteyl: { 
                 isim: "Kokteyl", 
-                // Fotoğraf satırı tamamen silindi, sadece metin görünecek
                 cesitler: [
                     { isim: "Cin Tonik", hacim: 200, alkol: 9 },
                     { isim: "Kuzukulağı / Ekşi", hacim: 200, alkol: 10 },
-                    { isim: "Se3 on the Beach", hacim: 250, alkol: 10 },
+                    { isim: "Sex on the Beach", hacim: 250, alkol: 10 },
                     { isim: "Mojito", hacim: 200, alkol: 10 },
                     { isim: "Margarita", hacim: 150, alkol: 15 },
                     { isim: "Long Island", hacim: 250, alkol: 15 },
@@ -175,7 +181,7 @@
                     { isim: "Lynchburg Lemonade", hacim: 250, alkol: 9 },
                     { isim: "Aperol Spritz", hacim: 200, alkol: 9 },
                     { isim: "Espresso Martini", hacim: 150, alkol: 15 },
-                    { isim: "kornstar Martini", hacim: 150, alkol: 15 },
+                    { isim: "Pornstar Martini", hacim: 150, alkol: 15 },
                     { isim: "Whiskey Sour", hacim: 150, alkol: 15 },
                     { isim: "Diğer / İmza Kokteyl", hacim: 200, alkol: 12 }
                 ]
@@ -187,6 +193,7 @@
             document.getElementById("anaUygulamaEkrani").style.display = "none";
             document.getElementById("kayitAdim1").style.display = "block";
             document.getElementById("kayitAdim2").style.display = "none";
+            document.getElementById("kayitAdimMide").style.display = "none";
             document.getElementById("kayitAdim3").style.display = "none";
         };
 
@@ -206,6 +213,13 @@
 
         function kiloOnayla() {
             document.getElementById("kayitAdim2").style.display = "none";
+            document.getElementById("kayitAdimMide").style.display = "block";
+        }
+
+        function mideSec(durum) {
+            geciciMide = durum;
+            document.getElementById("kayitAdimMide").style.display = "none";
+            
             const kvkkOnayli = localStorage.getItem("kvkk_onaylandi");
             if (kvkkOnayli === "true") { uygulamayaGec(); } 
             else { document.getElementById("kayitAdim3").style.display = "block"; }
@@ -219,6 +233,7 @@
         function uygulamayaGec() {
             localStorage.setItem("kullanici_cinsiyet", geciciCinsiyet);
             localStorage.setItem("kullanici_kilo", geciciKilo);
+            localStorage.setItem("kullanici_mide", geciciMide); // Mide durumunu hafızaya al
             document.getElementById("karsilamaEkrani").style.display = "none";
             document.getElementById("anaUygulamaEkrani").style.display = "flex";
             verileriYukle();
@@ -238,11 +253,8 @@
             for (let anahtar in icecekler) {
                 let btn = document.createElement("button");
                 btn.className = "menu-btn";
-                
-                // Eğer ana kategorinin fotoğrafı varsa göster, yoksa sadece isim
                 let icerik = icecekler[anahtar].foto ? `<img src="${icecekler[anahtar].foto}" class="menu-img">` : ``;
                 btn.innerHTML = `${icerik} <span>${icecekler[anahtar].isim}</span>`;
-                
                 btn.onclick = () => boyutMenusuAc(anahtar);
                 kategoriDiv.appendChild(btn);
             }
@@ -257,12 +269,9 @@
             icecekler[anahtar].cesitler.forEach(cesit => {
                 let btn = document.createElement("button");
                 btn.className = "menu-btn";
-                
-                // Eğer alt içeceğin fotoğrafı varsa göster, yoksa sadece metni göster
                 let icerik = cesit.foto ? `<img src="${cesit.foto}" class="menu-img">` : ``;
                 btn.innerHTML = `${icerik} <span>${cesit.isim}</span>`;
-                
-                btn.onclick = () => ickiOnayla(cesit.isim, cesit.hacim, alkolOrani = cesit.alkol);
+                btn.onclick = () => ickiOnayla(cesit.isim, cesit.hacim, cesit.alkol);
                 boyutDiv.appendChild(btn);
             });
         }
@@ -299,7 +308,8 @@
         }
 
         function hedefSaatiBul(eklenecekSaat) {
-            const hedefZaman = new Date(Date.now() + (eklenecekSaat * 60 * 60 * 1000));
+            // Belirlenen hedefe +15 dakika (15 * 60 * 1000 ms) güvenlik payı ekleniyor
+            const hedefZaman = new Date(Date.now() + (eklenecekSaat * 60 * 60 * 1000) + (15 * 60 * 1000));
             return `${hedefZaman.getHours().toString().padStart(2, '0')}:${hedefZaman.getMinutes().toString().padStart(2, '0')}`;
         }
 
@@ -309,7 +319,14 @@
             const guncelle = () => {
                 const kilo = localStorage.getItem("kullanici_kilo") || 80;
                 const cinsiyet = localStorage.getItem("kullanici_cinsiyet") || "erkek";
-                const r = (cinsiyet === 'erkek') ? 0.68 : 0.55;
+                const mide = localStorage.getItem("kullanici_mide") || "tok";
+                
+                // Cinsiyet ve Mide durumuna göre r katsayısı hesaplama
+                let r = (cinsiyet === 'erkek') ? 0.68 : 0.55;
+                if (mide === 'ac') {
+                    r = r * 0.85; // Aç karnına promil %15 daha yüksek (r daralır)
+                }
+                
                 const saatlikErime = 0.15;
                 
                 const arkaplan = document.getElementById("uygulamaGovdesi");
@@ -351,13 +368,13 @@
                     anaBaslik.innerText = "DİREKSİYONA GEÇME!";
                     const arabaSaat = (anlikPromil - 0.50) / saatlikErime;
                     arabaSayaci.style.display = "block";
-                    arabaSayaci.innerHTML = `Yola çıkabileceğin saat:<br><b style="font-size:2em;">${hedefSaatiBul(arabaSaat)}</b>`;
+                    arabaSayaci.innerHTML = `Yola çıkabileceğin saat:<br><b style="font-size:2em;">${hedefSaatiBul(arabaSaat)}</b><br><span style="font-size:0.8em; opacity:0.8;">(+15 dk güvenlik payı eklendi)</span>`;
                 }
 
                 if (anlikPromil > 0) {
                     const ayilmaSaat = anlikPromil / saatlikErime;
                     ayilmaSayaci.style.display = "block";
-                    ayilmaSayaci.innerHTML = `Tamamen ayılma:<br><b style="font-size:1.5em;opacity:0.8;">${hedefSaatiBul(ayilmaSaat)}</b>`;
+                    ayilmaSayaci.innerHTML = `Tamamen ayılma:<br><b style="font-size:1.5em;opacity:0.8;">${hedefSaatiBul(ayilmaSaat)}</b><br><span style="font-size:0.7em; opacity:0.6;">(+15 dk güvenlik payı eklendi)</span>`;
                 }
             };
             
