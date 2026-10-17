@@ -37,7 +37,7 @@
         .menu-btn { 
             background: #34495e; color: white; border: none; padding: 10px; border-radius: 15px; 
             width: 45%; max-width: 160px; cursor: pointer; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; transition: transform 0.1s;
+            align-items: center; justify-content: center; transition: transform 0.1s; min-height: 60px;
         }
         .menu-btn:active { transform: scale(0.95); }
         
@@ -60,21 +60,21 @@
 </head>
 <body id="uygulamaGovdesi">
 
-   <script>
-        // --- ŞİFRE KONTROLÜ (Her yenilemede KESİN sorar) ---
+    <script>
+        // --- ŞİFRE KONTROLÜ (Aşılmaz Versiyon - Her yenilemede sorar) ---
         const dogruSifre = "gürov"; 
         let cevap = prompt("Uygulamaya girmek için şifreyi yazın:");
         
         if (cevap !== dogruSifre) {
-            // Şifre yanlışsa veya iptale basılırsa ekranı tamamen sil ve kitle
             document.documentElement.innerHTML = "<body style='background-color:#2c3e50; color:white; text-align:center; padding-top:30vh; font-family:-apple-system, sans-serif;'><h2>⛔ Erişim Engellendi.</h2><p style='opacity:0.7;'>Sayfayı yenileyip tekrar deneyin.</p></body>";
             window.stop(); 
         }
     </script>
+
     <!-- KARŞILAMA EKRANI -->
     <div id="karsilamaEkrani">
         <div id="kayitAdim1">
-            <h2>Cinsiyetini Seç:</h2>
+            <h2>Metabolizma Tipini Seç:</h2>
             <button class="dev-buton" onclick="cinsiyetSec('kadin')">KADIN</button>
             <button class="dev-buton" onclick="cinsiyetSec('erkek')">ERKEK</button>
         </div>
@@ -160,6 +160,25 @@
                     { isim: "Tek Shot", hacim: 44, alkol: 40, foto: "vodka tekila viski.webp" },
                     { isim: "Duble", hacim: 88, alkol: 40, foto: "vodka tekila viski.webp" }
                 ]
+            },
+            kokteyl: { 
+                isim: "Kokteyl", 
+                foto: "kokteyl.jpg", // Ana ekranda kokteyli temsil edecek fotoğraf (Bunu klasörüne eklemelisin)
+                cesitler: [
+                    { isim: "Cin Tonik", hacim: 200, alkol: 9 },
+                    { isim: "Kuzukulağı / Ekşi", hacim: 200, alkol: 10 },
+                    { isim: "Sex on the Beach", hacim: 250, alkol: 10 },
+                    { isim: "Mojito", hacim: 200, alkol: 10 },
+                    { isim: "Margarita", hacim: 150, alkol: 15 },
+                    { isim: "Long Island", hacim: 250, alkol: 15 },
+                    { isim: "Votka Enerji", hacim: 250, alkol: 8 },
+                    { isim: "Lynchburg Lemonade", hacim: 250, alkol: 9 },
+                    { isim: "Aperol Spritz", hacim: 200, alkol: 9 },
+                    { isim: "Espresso Martini", hacim: 150, alkol: 15 },
+                    { isim: "Pornstar Martini", hacim: 150, alkol: 15 },
+                    { isim: "Whiskey Sour", hacim: 150, alkol: 15 },
+                    { isim: "Diğer / İmza Kokteyl", hacim: 200, alkol: 12 }
+                ]
             }
         };
 
@@ -219,6 +238,7 @@
             for (let anahtar in icecekler) {
                 let btn = document.createElement("button");
                 btn.className = "menu-btn";
+                // Ana kategorilerin hepsi için fotoğraf basılır
                 btn.innerHTML = `<img src="${icecekler[anahtar].foto}" class="menu-img"> <span>${icecekler[anahtar].isim}</span>`;
                 btn.onclick = () => boyutMenusuAc(anahtar);
                 kategoriDiv.appendChild(btn);
@@ -228,13 +248,17 @@
         function boyutMenusuAc(anahtar) {
             kategoriDiv.style.display = "none";
             boyutDiv.style.display = "flex";
-            document.getElementById("menuBasligi").innerText = "Porsiyon Seç:";
+            document.getElementById("menuBasligi").innerText = "Hangisi?";
             boyutDiv.innerHTML = "";
             
             icecekler[anahtar].cesitler.forEach(cesit => {
                 let btn = document.createElement("button");
                 btn.className = "menu-btn";
-                btn.innerHTML = `<img src="${cesit.foto}" class="menu-img"> <span>${cesit.isim}</span>`;
+                
+                // Eğer alt içeceğin fotoğrafı varsa göster (Rakı vb.), yoksa sadece metni göster (Kokteyl)
+                let icerik = cesit.foto ? `<img src="${cesit.foto}" class="menu-img">` : ``;
+                btn.innerHTML = `${icerik} <span>${cesit.isim}</span>`;
+                
                 btn.onclick = () => ickiOnayla(cesit.isim, cesit.hacim, cesit.alkol);
                 boyutDiv.appendChild(btn);
             });
