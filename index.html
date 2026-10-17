@@ -233,7 +233,7 @@
         function uygulamayaGec() {
             localStorage.setItem("kullanici_cinsiyet", geciciCinsiyet);
             localStorage.setItem("kullanici_kilo", geciciKilo);
-            localStorage.setItem("kullanici_mide", geciciMide); // Mide durumunu hafızaya al
+            localStorage.setItem("kullanici_mide", geciciMide); 
             document.getElementById("karsilamaEkrani").style.display = "none";
             document.getElementById("anaUygulamaEkrani").style.display = "flex";
             verileriYukle();
@@ -308,8 +308,7 @@
         }
 
         function hedefSaatiBul(eklenecekSaat) {
-            // Belirlenen hedefe +15 dakika (15 * 60 * 1000 ms) güvenlik payı ekleniyor
-            const hedefZaman = new Date(Date.now() + (eklenecekSaat * 60 * 60 * 1000) + (15 * 60 * 1000));
+            const hedefZaman = new Date(Date.now() + (eklenecekSaat * 60 * 60 * 1000));
             return `${hedefZaman.getHours().toString().padStart(2, '0')}:${hedefZaman.getMinutes().toString().padStart(2, '0')}`;
         }
 
@@ -321,10 +320,9 @@
                 const cinsiyet = localStorage.getItem("kullanici_cinsiyet") || "erkek";
                 const mide = localStorage.getItem("kullanici_mide") || "tok";
                 
-                // Cinsiyet ve Mide durumuna göre r katsayısı hesaplama
                 let r = (cinsiyet === 'erkek') ? 0.68 : 0.55;
                 if (mide === 'ac') {
-                    r = r * 0.85; // Aç karnına promil %15 daha yüksek (r daralır)
+                    r = r * 0.85; 
                 }
                 
                 const saatlikErime = 0.15;
@@ -368,13 +366,13 @@
                     anaBaslik.innerText = "DİREKSİYONA GEÇME!";
                     const arabaSaat = (anlikPromil - 0.50) / saatlikErime;
                     arabaSayaci.style.display = "block";
-                    arabaSayaci.innerHTML = `Yola çıkabileceğin saat:<br><b style="font-size:2em;">${hedefSaatiBul(arabaSaat)}</b><br><span style="font-size:0.8em; opacity:0.8;">(+15 dk güvenlik payı eklendi)</span>`;
+                    arabaSayaci.innerHTML = `Yola çıkabileceğin saat:<br><b style="font-size:2em;">${hedefSaatiBul(arabaSaat)}</b>`;
                 }
 
                 if (anlikPromil > 0) {
                     const ayilmaSaat = anlikPromil / saatlikErime;
                     ayilmaSayaci.style.display = "block";
-                    ayilmaSayaci.innerHTML = `Tamamen ayılma:<br><b style="font-size:1.5em;opacity:0.8;">${hedefSaatiBul(ayilmaSaat)}</b><br><span style="font-size:0.7em; opacity:0.6;">(+15 dk güvenlik payı eklendi)</span>`;
+                    ayilmaSayaci.innerHTML = `Tamamen ayılma:<br><b style="font-size:1.5em;opacity:0.8;">${hedefSaatiBul(ayilmaSaat)}</b>`;
                 }
             };
             
