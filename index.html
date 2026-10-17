@@ -37,7 +37,7 @@
         .menu-btn { 
             background: #34495e; color: white; border: none; padding: 10px; border-radius: 15px; 
             width: 45%; max-width: 160px; cursor: pointer; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; transition: transform 0.1s; min-height: 60px;
+            align-items: center; justify-content: center; transition: transform 0.1s; min-height: 80px;
         }
         .menu-btn:active { transform: scale(0.95); }
         
@@ -163,7 +163,7 @@
             },
             kokteyl: { 
                 isim: "Kokteyl", 
-                foto: "kokteyl.jpg", // Ana ekranda kokteyli temsil edecek fotoğraf (Bunu klasörüne eklemelisin)
+                // Fotoğraf satırı tamamen silindi, sadece metin görünecek
                 cesitler: [
                     { isim: "Cin Tonik", hacim: 200, alkol: 9 },
                     { isim: "Kuzukulağı / Ekşi", hacim: 200, alkol: 10 },
@@ -238,8 +238,11 @@
             for (let anahtar in icecekler) {
                 let btn = document.createElement("button");
                 btn.className = "menu-btn";
-                // Ana kategorilerin hepsi için fotoğraf basılır
-                btn.innerHTML = `<img src="${icecekler[anahtar].foto}" class="menu-img"> <span>${icecekler[anahtar].isim}</span>`;
+                
+                // Eğer ana kategorinin fotoğrafı varsa göster, yoksa sadece isim
+                let icerik = icecekler[anahtar].foto ? `<img src="${icecekler[anahtar].foto}" class="menu-img">` : ``;
+                btn.innerHTML = `${icerik} <span>${icecekler[anahtar].isim}</span>`;
+                
                 btn.onclick = () => boyutMenusuAc(anahtar);
                 kategoriDiv.appendChild(btn);
             }
@@ -255,11 +258,11 @@
                 let btn = document.createElement("button");
                 btn.className = "menu-btn";
                 
-                // Eğer alt içeceğin fotoğrafı varsa göster (Rakı vb.), yoksa sadece metni göster (Kokteyl)
+                // Eğer alt içeceğin fotoğrafı varsa göster, yoksa sadece metni göster
                 let icerik = cesit.foto ? `<img src="${cesit.foto}" class="menu-img">` : ``;
                 btn.innerHTML = `${icerik} <span>${cesit.isim}</span>`;
                 
-                btn.onclick = () => ickiOnayla(cesit.isim, cesit.hacim, cesit.alkol);
+                btn.onclick = () => ickiOnayla(cesit.isim, cesit.hacim, alkolOrani = cesit.alkol);
                 boyutDiv.appendChild(btn);
             });
         }
