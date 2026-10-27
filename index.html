@@ -60,6 +60,17 @@
 </head>
 <body id="uygulamaGovdesi">
 
+    <script>
+        // --- ŞİFRE KONTROLÜ (Aşılmaz Versiyon - Her yenilemede sorar) ---
+        const dogruSifre = "gürov"; 
+        let cevap = prompt("Uygulamaya girmek için şifreyi yazın:");
+        
+        if (cevap !== dogruSifre) {
+            document.documentElement.innerHTML = "<body style='background-color:#2c3e50; color:white; text-align:center; padding-top:30vh; font-family:-apple-system, sans-serif;'><h2>⛔ Erişim Engellendi.</h2><p style='opacity:0.7;'>Sayfayı yenileyip tekrar deneyin.</p></body>";
+            window.stop(); 
+        }
+    </script>
+
     <!-- KARŞILAMA EKRANI -->
     <div id="karsilamaEkrani">
         <div id="kayitAdim1">
@@ -383,3 +394,19 @@
                 const formatliSaat = `${saat.getHours().toString().padStart(2, '0')}:${saat.getMinutes().toString().padStart(2, '0')}`;
                 liste.innerHTML += `<li><span>${icki.isim}</span> <span style="opacity: 0.6;">${formatliSaat}</span></li>`;
             });
+            document.getElementById("toplamOzet").innerText = `Toplam: ${adisyon.length} İçecek`;
+        }
+    </script>
+    
+    <!-- Service Worker Kaydı -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker aktif!', reg))
+                    .catch(err => console.log('Service Worker hatası:', err));
+            });
+        }
+    </script>
+</body>
+</html>
